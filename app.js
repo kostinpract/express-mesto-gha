@@ -16,6 +16,14 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
 // подключаем мидлвары, роуты и всё остальное...
 
+app.use((req, res, next) => {
+  req.user = {
+    _id: '646333b4cff0e52ce6466021',
+  };
+  next();
+});
+
 app.use('/users', require('./routes/users'));
+app.use('/cards', require('./routes/cards'));
 
 app.listen(PORT);

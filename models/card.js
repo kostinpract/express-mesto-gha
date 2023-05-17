@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 const mongoose = require('mongoose');
 const userSchema = require('./user');
 
@@ -14,11 +13,13 @@ const cardSchema = new mongoose.Schema({
     required: true,
   },
   owner: {
-    type: userSchema,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: userSchema,
     required: true,
   },
   likes: [{
-    type: userSchema,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: userSchema,
     default: [],
   }],
   createdAt: {
