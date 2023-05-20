@@ -12,6 +12,12 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.getCard = (req, res) => {
+  Card.remove({ _id: req.params.cardId })
+    .then(() => res.send({}))
+    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+};
+
+module.exports.deleteCard = (req, res) => {
   Card.findById({ _id: req.params.cardId })
     .then((card) => res.send({ data: card }))
     .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
