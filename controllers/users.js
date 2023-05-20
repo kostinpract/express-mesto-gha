@@ -9,7 +9,21 @@ module.exports.createUser = (req, res) => {
 };
 
 module.exports.getUser = (req, res) => {
-  User.findById(req.params.id)
+  User.findById({ _id: req.params.userId })
+    .then((user) => res.send({ data: user }))
+    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+};
+
+module.exports.updateUser = (req, res) => {
+  User.findOneAndUpdate(
+    req.params.id,
+    req.body,
+    {
+      new: true, // обработчик then получит на вход обновлённую запись
+      runValidators: true, // данные будут валидированы перед изменением
+      upsert: true, // если пользователь не найден, он будет создан
+    },
+  )
     .then((user) => res.send({ data: user }))
     .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
 };
