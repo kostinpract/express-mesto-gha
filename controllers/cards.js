@@ -18,8 +18,8 @@ module.exports.getCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.remove({ _id: req.params.cardId })
-    .then(() => res.send({}))
+  Card.findByIdAndRemove({ _id: req.params.cardId })
+    .then((card) => res.send({ data: card }))
     .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
 };
 
