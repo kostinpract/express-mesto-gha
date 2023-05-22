@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
+const ERROR_NOT_FOUND = 404;
+
 const { PORT = 3000 } = process.env;
 const { MONGOURI = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
@@ -21,9 +23,9 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
+app.use('/users', require('./routes/users'));
 
-app.use('*', (req, res) => res.status(404).send({ message: 'Нет такого эндпоинта в нашем API' }));
+app.use('*', (req, res) => res.status(ERROR_NOT_FOUND).send({ message: 'Нет такого эндпоинта в нашем API' }));
 
 app.listen(PORT);

@@ -55,44 +55,37 @@ module.exports.getAllCards = (req, res) => {
     .catch((err) => res.status(ERROR_SERVER).send({ message: `Произошла ошибка ${err}` }));
 };
 
-module.exports.likeCard = (req, res) => {
+const changeCard = (req, res, method) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    { [method]: { likes: req.user._id } }, // убрать _id из массива
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением
-      upsert: true, // если пользователь не найден, он будет создан
     },
   )
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        const error = new Error('Карточка с таким ID не найдена');
+        error.statusCode = ERROR_NOT_FOUND;
+        error.name = 'NotFound';
+        throw error;
+      }
+      res.send({ data: card });
+    })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_BAD_REQUEST).send({ message: `Переданы некорректные данные, ${err.name}` });
+      if (err.name === 'CastError') {
+        res.status(ERROR_BAD_REQUEST).send({ message: `Указан некорректный ID карточки, ${err.name}` });
+      } else if (err.name === 'NotFound') {
+        res.status(ERROR_NOT_FOUND).send({ message: `Карточка с таким ID не найдена, ${err.name}` });
       } else {
         res.status(ERROR_SERVER).send({ message: `Произошла ошибка, ${err.name}` });
       }
     });
 };
 
-module.exports.dislikeCard = (req, res) => {
-  Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $pull: { likes: req.user._id } }, // убрать _id из массива
-    {
-      new: true, // обработчик then получит на вход обновлённую запись
-      runValidators: true, // данные будут валидированы перед изменением
-      upsert: true, // если пользователь не найден, он будет создан
-    },
-  )
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_BAD_REQUEST).send({ message: `Переданы некорректные данные, ${err.name}` });
-      } else {
-        res.status(ERROR_SERVER).send({ message: `Произошла ошибка, ${err.name}` });
-      }
-    });
-};
+module.exports.likeCard = (req, res) => changeCard(req, res, '$addToSet');
+module.exports.dislikeCard = (req, res) => changeCard(req, res, '$pull');
 
 // module.exports.changeLike = (req, res) => {
 //   Card.findById({ _id: req.params.cardId })
