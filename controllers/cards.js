@@ -29,27 +29,55 @@ module.exports.getAllCards = (req, res) => {
     .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
 };
 
-module.exports.changeLike = (req, res) => {
-  Card.findById({ _id: req.params.cardId })
-    .then((card) => {
-      const currentUserLikeIndex = card.likes.indexOf(req.user._id);
-      if (req.method === 'PUT' && currentUserLikeIndex === -1) {
-        card.likes.push(req.user._id);
-      } else if (req.method === 'DELETE' && currentUserLikeIndex >= 0) {
-        card.likes.splice(currentUserLikeIndex, 1);
-      }
-
-      Card.findOneAndUpdate(
-        { _id: req.params.cardId },
-        card,
-        {
-          new: true, // обработчик then получит на вход обновлённую запись
-          runValidators: true, // данные будут валидированы перед изменением
-          upsert: true, // если пользователь не найден, он будет создан
-        },
-      )
-        .then((updatedCard) => res.send({ data: updatedCard }))
-        .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
-    })
+module.exports.likeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    {
+      new: true, // обработчик then получит на вход обновлённую запись
+      runValidators: true, // данные будут валидированы перед изменением
+      upsert: true, // если пользователь не найден, он будет создан
+    },
+  )
+    .then((card) => res.send({ data: card }))
     .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
 };
+
+module.exports.dislikeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: req.user._id } }, // убрать _id из массива
+    {
+      new: true, // обработчик then получит на вход обновлённую запись
+      runValidators: true, // данные будут валидированы перед изменением
+      upsert: true, // если пользователь не найден, он будет создан
+    },
+  )
+    .then((card) => res.send({ data: card }))
+    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+};
+
+// module.exports.changeLike = (req, res) => {
+//   Card.findById({ _id: req.params.cardId })
+//     .then((card) => {
+//       const currentUserLikeIndex = card.likes.indexOf(req.user._id);
+//       if (req.method === 'PUT' && currentUserLikeIndex === -1) {
+//         card.likes.push(req.user._id);
+//       } else if (req.method === 'DELETE' && currentUserLikeIndex >= 0) {
+//         card.likes.splice(currentUserLikeIndex, 1);
+//       }
+
+//       Card.findOneAndUpdate(
+//         { _id: req.params.cardId },
+//         card,
+//         {
+//           new: true, // обработчик then получит на вход обновлённую запись
+//           runValidators: true, // данные будут валидированы перед изменением
+//           upsert: true, // если пользователь не найден, он будет создан
+//         },
+//       )
+//         .then((updatedCard) => res.send({ data: updatedCard }))
+//         .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+//     })
+//     .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+// };
