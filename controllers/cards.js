@@ -62,7 +62,13 @@ module.exports.likeCard = (req, res) => {
     },
   )
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: `Переданы некорректные данные, ${err.name}` });
+      } else {
+        res.status(500).send({ message: `Произошла ошибка, ${err.name}` });
+      }
+    });
 };
 
 module.exports.dislikeCard = (req, res) => {
@@ -75,8 +81,13 @@ module.exports.dislikeCard = (req, res) => {
       upsert: true, // если пользователь не найден, он будет создан
     },
   )
-    .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: `Переданы некорректные данные, ${err.name}` });
+      } else {
+        res.status(500).send({ message: `Произошла ошибка, ${err.name}` });
+      }
+    });
 };
 
 // module.exports.changeLike = (req, res) => {
