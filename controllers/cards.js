@@ -10,7 +10,7 @@ module.exports.createCard = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((user) => res.send({ data: user }))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_BAD_REQUEST).send({ message: `Переданы некорректные данные, ${err.name}` });
@@ -28,8 +28,8 @@ module.exports.getCard = (req, res) => {
       error.name = 'NotFound';
       return error;
     })
-    .then((user) => {
-      res.send({ data: user });
+    .then((card) => {
+      res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -51,7 +51,7 @@ module.exports.deleteCard = (req, res) => {
         error.name = 'NotFound';
         throw error;
       }
-      res.send({ data: card });
+      res.send({ card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -66,7 +66,7 @@ module.exports.deleteCard = (req, res) => {
 
 module.exports.getAllCards = (req, res) => {
   Card.find({})
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.send(card))
     .catch((err) => res.status(ERROR_SERVER).send({ message: `Произошла ошибка, ${err}` }));
 };
 
@@ -86,7 +86,7 @@ const changeCard = (req, res, method) => {
         error.name = 'NotFound';
         throw error;
       }
-      res.send({ data: card });
+      res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
