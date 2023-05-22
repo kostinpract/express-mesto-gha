@@ -7,14 +7,36 @@ module.exports.createCard = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .then((user) => res.send({ data: user }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: `Переданы некорректные данные, ${err.name}` });
+      } else {
+        res.status(500).send({ message: `Произошла ошибка, ${err.name}` });
+      }
+    });
 };
 
 module.exports.getCard = (req, res) => {
   Card.findById({ _id: req.params.cardId })
-    .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .orFail(() => {
+      const error = new Error('Карточка с таким ID не найдена');
+      error.statusCode = 404;
+      error.name = 'NotFound';
+      return error;
+    })
+    .then((user) => {
+      res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: `Указан некорректный ID карточки, ${err.name}` });
+      } else if (err.name === 'NotFound') {
+        res.status(404).send({ message: `Карточка с таким ID не найдена, ${err.name}` });
+      } else {
+        res.status(500).send({ message: `Произошла ошибка, ${err.name}` });
+      }
+    });
 };
 
 module.exports.deleteCard = (req, res) => {
