@@ -5,13 +5,31 @@ module.exports.createUser = (req, res) => {
 
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch((err) => {
+      res.status(500).send({ message: `Произошла ошибка ${err}` })
+    });
 };
 
 module.exports.getUser = (req, res) => {
   User.findById({ _id: req.params.userId })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .orFail(() => {
+      const error = new Error('Пользователь с таким ID не найден');
+      error.statusCode = 404;
+      error.name = 'NotFound';
+      return error;
+    })
+    .then((user) => {
+        res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: `Указан некорректный ID пользователя, ${err.name}` });
+      } else if (err.name === 'NotFound') {
+        res.status(404).send({ message: `Пользователь с таким ID не найден, ${err.name}` });
+      } else {
+        res.status(500).send({ message: `Произошла ошибка, ${err.name}` });
+      }
+    });
 };
 
 module.exports.updateUser = (req, res) => {
