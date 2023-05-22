@@ -47,7 +47,13 @@ module.exports.updateUser = (req, res) => {
     },
   )
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: `Переданы некорректные данные, ${err.name}` });
+      } else {
+        res.status(500).send({ message: `Произошла ошибка, ${err.name}` });
+      }
+    });
 };
 
 module.exports.getAllUsers = (req, res) => {
