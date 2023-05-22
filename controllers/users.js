@@ -6,7 +6,7 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      res.status(500).send({ message: `Произошла ошибка ${err}` })
+      res.status(500).send({ message: `Произошла ошибка ${err}` });
     });
 };
 
@@ -19,7 +19,7 @@ module.exports.getUser = (req, res) => {
       return error;
     })
     .then((user) => {
-        res.send({ data: user });
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {

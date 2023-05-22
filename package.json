@@ -4,9 +4,10 @@
   "description": "Mesto Backend",
   "main": "app.js",
   "scripts": {
-    "lint": "npx eslint .",
     "dev": "nodemon app.js",
-    "start": "node app.js"
+    "start": "node app.js",
+    "lint": "npx eslint .",
+    "lint:fix": "npx eslint --fix ."
   },
   "repository": {
     "type": "git",
