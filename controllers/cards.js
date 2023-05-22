@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 const Card = require('../models/card');
 
 const ERROR_BAD_REQUEST = 400;
@@ -68,7 +67,7 @@ module.exports.deleteCard = (req, res) => {
 module.exports.getAllCards = (req, res) => {
   Card.find({})
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(ERROR_SERVER).send({ message: `Произошла ошибка ${err}` }));
+    .catch((err) => res.status(ERROR_SERVER).send({ message: `Произошла ошибка, ${err}` }));
 };
 
 const changeCard = (req, res, method) => {

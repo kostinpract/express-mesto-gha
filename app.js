@@ -14,8 +14,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 mongoose.connect(MONGOURI);
 
-// подключаем мидлвары, роуты и всё остальное...
-
 app.use((req, res, next) => {
   req.user = {
     _id: '646333b4cff0e52ce6466021',
