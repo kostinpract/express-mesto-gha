@@ -1,5 +1,6 @@
 const Card = require('../models/card');
 
+const STATUS_CREATED = 201;
 const ERROR_BAD_REQUEST = 400;
 const ERROR_NOT_FOUND = 404;
 const ERROR_SERVER = 500;
@@ -10,7 +11,7 @@ module.exports.createCard = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.send(card))
+    .then((card) => res.status(STATUS_CREATED).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_BAD_REQUEST).send({ message: `Переданы некорректные данные, ${err.name}` });
@@ -102,28 +103,3 @@ const changeCard = (req, res, method) => {
 module.exports.likeCard = (req, res) => changeCard(req, res, '$addToSet');
 
 module.exports.dislikeCard = (req, res) => changeCard(req, res, '$pull');
-
-// module.exports.changeLike = (req, res) => {
-//   Card.findById({ _id: req.params.cardId })
-//     .then((card) => {
-//       const currentUserLikeIndex = card.likes.indexOf(req.user._id);
-//       if (req.method === 'PUT' && currentUserLikeIndex === -1) {
-//         card.likes.push(req.user._id);
-//       } else if (req.method === 'DELETE' && currentUserLikeIndex >= 0) {
-//         card.likes.splice(currentUserLikeIndex, 1);
-//       }
-
-//       Card.findOneAndUpdate(
-//         { _id: req.params.cardId },
-//         card,
-//         {
-//           new: true, // обработчик then получит на вход обновлённую запись
-//           runValidators: true, // данные будут валидированы перед изменением
-//           upsert: true, // если пользователь не найден, он будет создан
-//         },
-//       )
-//         .then((updatedCard) => res.send({ data: updatedCard }))
-//         .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
-//     })
-//     .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
-// };
