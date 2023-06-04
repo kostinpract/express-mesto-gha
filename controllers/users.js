@@ -1,27 +1,29 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const { SECRET } = require('../config');
+
+const { BadRequestError } = require('../errors/bad-request-err');
+const { ConflictError } = require('../errors/conflict-err');
+const { NotFoundError } = require('../errors/not-found-err');
 
 const STATUS_CREATED = 201;
 const STATUS_OK = 200;
 const ERROR_BAD_REQUEST = 400;
 const ERROR_NOT_FOUND = 404;
-const ERROR_AUTH = 401;
 const ERROR_SERVER = 500;
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password).select('+password')
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, SECRET, { expiresIn: '7d' });
       res.status(STATUS_OK).send({ token });
     })
-    .catch((err) => {
-      res.status(ERROR_AUTH).send({ message: err.message });
-    });
+    .catch(next);
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name,
     about,
@@ -42,38 +44,33 @@ module.exports.createUser = (req, res) => {
         .then((user) => res.status(STATUS_CREATED).send(user))
         .catch((err) => {
           if (err.name === 'ValidationError') {
-            res.status(ERROR_BAD_REQUEST).send({ message: `Переданы некорректные данные, ${err.name}` });
-          } else {
-            res.status(ERROR_SERVER).send({ message: `Произошла ошибка, ${err.name}` });
+            next(new BadRequestError('Поля заполнены некорректно'));
+          } else if (err.code === 11000) {
+            next(new ConflictError('Уже есть пользователь с таким email'));
           }
+          next(err);
         });
     });
 };
 
-module.exports.getUser = (req, res) => {
+module.exports.getUser = (req, res, next) => {
   let id = req.params.userId;
   if (!id) {
-    const decoded = jwt.verify(req.params.token, 'super-strong-secret');
+    const decoded = jwt.verify(req.params.token, SECRET);
     id = decoded.id;
   }
   User.findById({ _id: id })
     .orFail(() => {
-      const error = new Error('Пользователь с таким ID не найден');
-      error.statusCode = ERROR_NOT_FOUND;
-      error.name = 'NotFound';
-      return error;
+      next(new NotFoundError('Пользователь с таким ID не найден'));
     })
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_BAD_REQUEST).send({ message: `Указан некорректный ID пользователя, ${err.name}` });
-      } else if (err.name === 'NotFound') {
-        res.status(ERROR_NOT_FOUND).send({ message: `Пользователь с таким ID не найден, ${err.name}` });
-      } else {
-        res.status(ERROR_SERVER).send({ message: `Произошла ошибка, ${err.name}` });
+        next(new BadRequestError('Указан некорректный ID пользователя'));
       }
+      next(err);
     });
 };
 
