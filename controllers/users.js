@@ -51,7 +51,12 @@ module.exports.createUser = (req, res) => {
 };
 
 module.exports.getUser = (req, res) => {
-  User.findById({ _id: req.params.userId })
+  let id = req.params.userId;
+  if (!id) {
+    const decoded = jwt.verify(req.params.token, 'super-strong-secret');
+    id = decoded.id;
+  }
+  User.findById({ _id: id })
     .orFail(() => {
       const error = new Error('Пользователь с таким ID не найден');
       error.statusCode = ERROR_NOT_FOUND;
