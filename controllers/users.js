@@ -1,21 +1,52 @@
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
 const STATUS_CREATED = 201;
+const STATUS_OK = 200;
 const ERROR_BAD_REQUEST = 400;
 const ERROR_NOT_FOUND = 404;
+const ERROR_AUTH = 401;
 const ERROR_SERVER = 500;
 
-module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-
-  User.create({ name, about, avatar })
-    .then((user) => res.status(STATUS_CREATED).send(user))
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      res.status(STATUS_OK).send({
+        _id: user._id,
+      });
+    })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_BAD_REQUEST).send({ message: `Переданы некорректные данные, ${err.name}` });
-      } else {
-        res.status(ERROR_SERVER).send({ message: `Произошла ошибка, ${err.name}` });
-      }
+      res.status(ERROR_AUTH).send({ message: err.message });
+    });
+};
+
+module.exports.createUser = (req, res) => {
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
+
+  bcrypt.hash(password, 10)
+    .then((hash) => {
+      User.create({
+        name,
+        about,
+        avatar,
+        email,
+        hash,
+      })
+        .then((user) => res.status(STATUS_CREATED).send(user))
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            res.status(ERROR_BAD_REQUEST).send({ message: `Переданы некорректные данные, ${err.name}` });
+          } else {
+            res.status(ERROR_SERVER).send({ message: `Произошла ошибка, ${err.name}` });
+          }
+        });
     });
 };
 
