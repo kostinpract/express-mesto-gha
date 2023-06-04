@@ -25,13 +25,14 @@ app.post('/signin', celebrate({
     password: Joi.string().required().min(2),
   }),
 }), login);
+
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(2),
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
-    avatar: Joi.string().required().min(2).max(30),
+    avatar: Joi.string().required().min(2),
   }),
 }), createUser);
 
@@ -39,5 +40,11 @@ app.use('/cards', auth, require('./routes/cards'));
 app.use('/users', auth, require('./routes/users'));
 
 app.use('*', (req, res) => res.status(ERROR_NOT_FOUND).send({ message: 'Нет такого эндпоинта в нашем API' }));
+
+app.use((err, req, res, next) => {
+  console.log(err);
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({ message: statusCode === 500 ? 'На сервере произошла ошибка' : message });
+});
 
 app.listen(PORT, () => console.log('Бэкенд запущен'));
