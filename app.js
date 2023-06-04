@@ -18,13 +18,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 mongoose.connect(MONGOURI);
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '646333b4cff0e52ce6466021',
-  };
-  next();
-});
-
 app.post('/signin', login);
 app.post('/signup', createUser);
 
