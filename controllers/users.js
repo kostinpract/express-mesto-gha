@@ -11,7 +11,7 @@ const ERROR_SERVER = 500;
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password).select('+password')
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
       res.status(STATUS_OK).send({ token });

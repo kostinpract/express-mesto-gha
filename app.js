@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const { login, createUser } = require('./controllers/users');
+const auth = require('./middlewares/auth');
 
 const ERROR_NOT_FOUND = 404;
 
@@ -27,8 +28,8 @@ app.use((req, res, next) => {
 app.post('/signin', login);
 app.post('/signup', createUser);
 
-app.use('/cards', require('./routes/cards'));
-app.use('/users', require('./routes/users'));
+app.use('/cards', auth, require('./routes/cards'));
+app.use('/users', auth, require('./routes/users'));
 
 app.use('*', (req, res) => res.status(ERROR_NOT_FOUND).send({ message: 'Нет такого эндпоинта в нашем API' }));
 
