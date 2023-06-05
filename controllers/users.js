@@ -14,7 +14,6 @@ const ERROR_SERVER = 500;
 
 module.exports.loginUser = (req, res, next) => {
   const { email, password } = req.body;
-  console.log(email, password, SECRET);
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign(
@@ -64,9 +63,7 @@ module.exports.createUser = (req, res, next) => {
           next(err);
         });
     })
-    .catch((err) => {
-      console.log(err);
-    });
+    .catch(next);
 };
 
 module.exports.getUser = (req, res, next) => {
