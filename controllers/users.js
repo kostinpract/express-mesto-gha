@@ -67,7 +67,6 @@ module.exports.createUser = (req, res, next) => {
 module.exports.getUser = (req, res, next) => {
   let id = req.params.userId;
   if (!id) {
-    // const decoded = jwt.verify(req.params.token, SECRET);
     id = req.user._id;
   }
   User.findById({ _id: id })
