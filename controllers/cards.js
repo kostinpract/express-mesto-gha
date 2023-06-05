@@ -87,6 +87,6 @@ const changeCard = (req, res, method, next) => {
     });
 };
 
-module.exports.likeCard = (req, res) => changeCard(req, res, '$addToSet');
+module.exports.likeCard = (req, res, next) => changeCard(req, res, '$addToSet', next);
 
-module.exports.dislikeCard = (req, res) => changeCard(req, res, '$pull');
+module.exports.dislikeCard = (req, res, next) => changeCard(req, res, '$pull', next);
