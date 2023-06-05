@@ -9,8 +9,6 @@ const { NotFoundError } = require('../errors/not-found-err');
 
 const STATUS_CREATED = 201;
 const STATUS_OK = 200;
-const ERROR_BAD_REQUEST = 400;
-const ERROR_SERVER = 500;
 
 module.exports.loginUser = (req, res, next) => {
   const { email, password } = req.body;
@@ -87,7 +85,7 @@ module.exports.getUser = (req, res, next) => {
     });
 };
 
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   User.findOneAndUpdate(
     req.params.id,
     req.body,
@@ -99,15 +97,14 @@ module.exports.updateUser = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_BAD_REQUEST).send({ message: `Переданы некорректные данные, ${err.name}` });
-      } else {
-        res.status(ERROR_SERVER).send({ message: `Произошла ошибка, ${err.name}` });
+        next(new BadRequestError('Переданы некорректные данные'));
       }
+      next(err);
     });
 };
 
-module.exports.getAllUsers = (req, res) => {
+module.exports.getAllUsers = (req, res, next) => {
   User.find({})
     .then((user) => res.send(user))
-    .catch((err) => res.status(ERROR_SERVER).send({ message: `Произошла ошибка ${err}` }));
+    .catch(next);
 };
