@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const { errors, celebrate, Joi } = require('celebrate');
-const { login, createUser } = require('./controllers/users');
+const { loginUser, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { NotFoundError } = require('./errors/not-found-err');
 
@@ -21,9 +21,9 @@ mongoose.connect(MONGOURI);
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(2),
+    password: Joi.string().min(8).required(),
   }),
-}), login);
+}), loginUser);
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
@@ -31,7 +31,7 @@ app.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().regex(/https?:\/\/(www\.)?[-a-zA-Z0-9:%._+~#=]{1,}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/),
     email: Joi.string().required().email(),
-    password: Joi.string().required(),
+    password: Joi.string().min(8).required(),
   }),
 }), createUser);
 

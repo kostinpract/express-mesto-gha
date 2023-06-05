@@ -12,11 +12,17 @@ const STATUS_OK = 200;
 const ERROR_BAD_REQUEST = 400;
 const ERROR_SERVER = 500;
 
-module.exports.login = (req, res, next) => {
+module.exports.loginUser = (req, res, next) => {
   const { email, password } = req.body;
+  console.log(email, password, SECRET);
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, SECRET, { expiresIn: '7d' });
+      const token = jwt.sign(
+        { _id: user._id },
+        SECRET,
+        { expiresIn: '7d' },
+      );
+
       res.status(STATUS_OK).send({ token });
     })
     .catch(next);
@@ -33,7 +39,6 @@ module.exports.createUser = (req, res, next) => {
 
   bcrypt.hash(password, 10)
     .then((hash) => {
-      console.log(hash);
       User.create({
         name,
         about,
@@ -41,7 +46,15 @@ module.exports.createUser = (req, res, next) => {
         email,
         password: hash,
       })
-        .then((user) => res.status(STATUS_CREATED).send(user))
+        .then((user) => {
+          res.status(STATUS_CREATED).send({
+            name,
+            about,
+            avatar,
+            email,
+            _id: user._id,
+          });
+        })
         .catch((err) => {
           if (err.name === 'ValidationError') {
             next(new BadRequestError('Поля заполнены некорректно'));
