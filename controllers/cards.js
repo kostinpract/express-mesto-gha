@@ -1,13 +1,9 @@
 const Card = require('../models/card');
 
 const { BadRequestError } = require('../errors/bad-request-err');
-const { ConflictError } = require('../errors/conflict-err');
 const { NotFoundError } = require('../errors/not-found-err');
 
 const STATUS_CREATED = 201;
-const ERROR_BAD_REQUEST = 400;
-const ERROR_NOT_FOUND = 404;
-const ERROR_SERVER = 500;
 
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
