@@ -6,7 +6,6 @@ const { SECRET } = require('../config');
 const { BadRequestError } = require('../errors/bad-request-err');
 const { ConflictError } = require('../errors/conflict-err');
 const { NotFoundError } = require('../errors/not-found-err');
-const { errors } = require('celebrate');
 
 const STATUS_CREATED = 201;
 const STATUS_OK = 200;

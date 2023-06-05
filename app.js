@@ -35,8 +35,10 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-app.use('/cards', auth, require('./routes/cards'));
-app.use('/users', auth, require('./routes/users'));
+app.use(auth);
+
+app.use('/cards', require('./routes/cards'));
+app.use('/users', require('./routes/users'));
 
 app.use('*', (req, res, next) => {
   next(new NotFoundError('Такой эндпоинт не найден'));
@@ -45,6 +47,7 @@ app.use('*', (req, res, next) => {
 app.use(errors());
 
 app.use((err, req, res, next) => {
+  console.log(err);
   const { statusCode = 500, message } = err;
   res.status(statusCode).send({ message: statusCode === 500 ? 'На сервере произошла ошибка' : message });
   next();
