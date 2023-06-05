@@ -6,11 +6,11 @@ const { SECRET } = require('../config');
 const { BadRequestError } = require('../errors/bad-request-err');
 const { ConflictError } = require('../errors/conflict-err');
 const { NotFoundError } = require('../errors/not-found-err');
+const { errors } = require('celebrate');
 
 const STATUS_CREATED = 201;
 const STATUS_OK = 200;
 const ERROR_BAD_REQUEST = 400;
-const ERROR_NOT_FOUND = 404;
 const ERROR_SERVER = 500;
 
 module.exports.login = (req, res, next) => {
@@ -34,6 +34,7 @@ module.exports.createUser = (req, res, next) => {
 
   bcrypt.hash(password, 10)
     .then((hash) => {
+      console.log(hash);
       User.create({
         name,
         about,
@@ -50,6 +51,9 @@ module.exports.createUser = (req, res, next) => {
           }
           next(err);
         });
+    })
+    .catch((err) => {
+      console.log(err);
     });
 };
 
