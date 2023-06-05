@@ -3,5 +3,4 @@ exports.BadRequestError = class BadRequestError extends Error {
     super(message);
     this.statusCode = 400;
   }
-}
-
+};

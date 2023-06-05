@@ -3,5 +3,4 @@ exports.ConflictError = class ConflictError extends Error {
     super(message);
     this.statusCode = 409;
   }
-}
-
+};

@@ -3,4 +3,4 @@ exports.NotAuthError = class NotAuthError extends Error {
     super(message);
     this.statusCode = 401;
   }
-}
+};
