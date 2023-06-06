@@ -33,7 +33,9 @@ module.exports.getCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Указан некорректный ID карточки'));
-      } else if (err.name === 'NotFound') {
+        return;
+      }
+      if (err.name === 'NotFound') {
         next(new NotFoundError('Карточка с таким ID не найдена'));
         return;
       }
@@ -90,8 +92,11 @@ const changeCard = (req, res, method, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Указан некорректный ID карточки'));
-      } else if (err.name === 'NotFound') {
+        return;
+      }
+      if (err.name === 'NotFound') {
         next(new NotFoundError('Карточка с таким ID не найдена'));
+        return;
       }
       next();
     });

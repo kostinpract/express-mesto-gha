@@ -55,8 +55,11 @@ module.exports.createUser = (req, res, next) => {
         .catch((err) => {
           if (err.name === 'ValidationError') {
             next(new BadRequestError('Поля заполнены некорректно'));
-          } else if (err.code === 11000) {
+            return;
+          }
+          if (err.code === 11000) {
             next(new ConflictError('Уже есть пользователь с таким email'));
+            return;
           }
           next(err);
         });
@@ -79,6 +82,7 @@ module.exports.getUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Указан некорректный ID пользователя'));
+        return;
       }
       next(err);
     });
